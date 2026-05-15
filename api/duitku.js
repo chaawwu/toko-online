@@ -3,9 +3,8 @@ const axios = require("axios");
 
 module.exports = async (req, res) => {
 
-  const merchantCode = process.env.DUITKU_MERCHANT_CODE;
-  const apiKey = process.env.DUITKU_API_KEY;
-
+  const merchantCode =console.log(process.env.DUITKU_MERCHANT_CODE);
+  const apiKey =console.log(process.env.DUITKU_API_KEY);
   const { orderId, paymentAmount, productDetails, email } = req.body;
 
   const signatureString =
