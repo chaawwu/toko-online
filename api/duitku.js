@@ -34,3 +34,4 @@ module.exports = async (req, res) => {
         // Lempar ke depan
         res.status(500).json({ success: false, message: "Error dari Duitku: " + alasanDuitku });
     }
+};
