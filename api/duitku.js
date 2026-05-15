@@ -29,11 +29,15 @@ module.exports = async (req, res) => {
         returnUrl: returnUrl || "https://google.com" 
     };
 
-    try {
-        // Menembak server Duitku mode Sandbox (Testing)
+  try {
         const response = await axios.post("https://api-sandbox.duitku.com/api/merchant/createinvoice", payload);
         res.status(200).json({ success: true, paymentUrl: response.data.paymentUrl });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Gagal menyambung ke Duitku" });
+        // TANGKAP PESAN ASLI DARI DUITKU
+        const alasanDuitku = error.response && error.response.data ? error.response.data.Message : error.message;
+        console.error("Ditolak karena:", alasanDuitku);
+        
+        // Kirim alasan tersebut ke tampilan depan
+        res.status(500).json({ success: false, message: "Ditolak Duitku: " + alasanDuitku });
     }
 };

@@ -95,8 +95,16 @@
                     window.location.href = data.paymentUrl;
                 } else {
                     alert("Gagal memproses pembayaran");
+                    const data = await respons.json();
+
+                if (data.success && data.paymentUrl) {
+                    window.location.href = data.paymentUrl;
+                } else {
+                    // TAMPILKAN ALASAN ASLI KE LAYAR
+                    alert(data.message); 
                     btn.innerText = "Bayar Sekarang";
                     btn.disabled = false;
+                }
                 }
             } catch (error) {
                 alert("Error jaringan. Pastikan internet lancar.");
