@@ -28,8 +28,7 @@ module.exports = async (req, res) => {
         signature: signature,
         returnUrl: returnUrl || "https://google.com" 
     };
-
-  try {
+     try {
         const response = await axios.post("https://api-sandbox.duitku.com/api/merchant/createinvoice", payload);
         res.status(200).json({ success: true, paymentUrl: response.data.paymentUrl });
     } catch (error) {
