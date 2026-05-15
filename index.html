@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Premium</title>
+    <style>
+        /* Mengambil font modern bergaya startup */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .checkout-card {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+        }
+        .product-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+            margin-top: 0;
+        }
+        .product-price {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2563eb;
+            margin-bottom: 24px;
+        }
+        .pay-button {
+            background-color: #0f172a;
+            color: #ffffff;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .pay-button:hover {
+            background-color: #334155;
+        }
+        .pay-button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="checkout-card">
+        <h2 class="product-title">Langganan Premium</h2>
+        <div class="product-price">Rp 150.000</div>
+        <button id="tombolBayar" class="pay-button" onclick="bayar()">Bayar Sekarang</button>
+    </div>
+
+    <script>
+        async function bayar() {
+            const btn = document.getElementById("tombolBayar");
+            btn.innerText = "Memproses...";
+            btn.disabled = true; // Matikan tombol sementara agar tidak diklik dua kali
+            
+            try {
+                // Tembak mesin API Duitku yang ada di Vercel nanti
+                const respons = await fetch('/api/duitku', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: "INV-" + Date.now(),
+                        paymentAmount: 150000,
+                        productDetails: "Langganan Premium",
+                        email: "pembeli@gmail.com",
+                        returnUrl: window.location.href // Kembali ke halaman ini setelah selesai
+                    })
+                });
+
+                const data = await respons.json();
+
+                if (data.success && data.paymentUrl) {
+                    // Berhasil! Pindahkan user ke halaman Duitku
+                    window.location.href = data.paymentUrl;
+                } else {
+                    alert("Gagal memproses pembayaran");
+                    btn.innerText = "Bayar Sekarang";
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                alert("Error jaringan. Pastikan internet lancar.");
+                btn.innerText = "Bayar Sekarang";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
