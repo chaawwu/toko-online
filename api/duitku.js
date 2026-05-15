@@ -2,41 +2,35 @@ const crypto = require("crypto");
 const axios = require("axios");
 
 module.exports = async (req, res) => {
-    // Pastikan request berupa POST
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Gunakan method POST' });
     }
 
-    // Mengambil rahasia dari Vercel nanti
     const merchantCode = process.env.DUITKU_MERCHANT_CODE;
     const apiKey = process.env.DUITKU_API_KEY;
     
-    // Menerima data pesanan dari web depan
     const { orderId, paymentAmount, productDetails, email, returnUrl } = req.body;
 
-    // Rumus MD5 standar Duitku
     const signatureString = `${merchantCode}${orderId}${paymentAmount}${apiKey}`;
     const signature = crypto.createHash("md5").update(signatureString).digest("hex");
 
-    // Menyiapkan data untuk dikirim ke Duitku
     const payload = {
         merchantCode: merchantCode,
         paymentAmount: paymentAmount,
         merchantOrderId: orderId,
-        productDetails: productDetails || "Barang Toko",
+        productDetails: productDetails || "Langganan Premium",
         email: email || "user@email.com",
         signature: signature,
         returnUrl: returnUrl || "https://google.com" 
     };
-     try {
+
+    try {
         const response = await axios.post("https://api-sandbox.duitku.com/api/merchant/createinvoice", payload);
         res.status(200).json({ success: true, paymentUrl: response.data.paymentUrl });
     } catch (error) {
-        // TANGKAP PESAN ASLI DARI DUITKU
+        // Tangkap pesan asli dari Duitku
         const alasanDuitku = error.response && error.response.data ? error.response.data.Message : error.message;
-        console.error("Ditolak karena:", alasanDuitku);
         
-        // Kirim alasan tersebut ke tampilan depan
-        res.status(500).json({ success: false, message: "Ditolak Duitku: " + alasanDuitku });
+        // Lempar ke depan
+        res.status(500).json({ success: false, message: "Error dari Duitku: " + alasanDuitku });
     }
-};
